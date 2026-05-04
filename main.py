@@ -48,7 +48,7 @@ def main(page: ft.Page):
 
             # Formatear el resultado
             resultado_texto.value = (
-                f"📊 Desglose de Operación Susan\n\n"
+                f"📊 Desglose de Operación\n\n"
                 f"1. Fase de Compra (Efectivo/Banco):\n"
                 f"• Bolívares Totales por venta: {bs_totales:,.2f} Bs.\n"
                 f"• Dólares que puedes comprar: {cantidad_usd} USD\n"
