@@ -7,7 +7,9 @@ def main(page: ft.Page):
     page.scroll = "adaptive"
     page.theme_mode = ft.ThemeMode.DARK 
 
-    page.padding = 20 
+    # --- AQUÍ ESTÁ EL AJUSTE PARA EL BORDE SUPERIOR ---
+    # 60 píxeles arriba para evitar la cámara/hora, y 20 a los lados
+    page.padding = ft.padding.only(top=60, left=20, right=20, bottom=20)
 
     # --- CAMPOS DE ENTRADA PRINCIPALES ---
     capital_input = ft.TextField(label="Capital a invertir (USD)", keyboard_type="number")
@@ -73,7 +75,6 @@ def main(page: ft.Page):
             "Calcular Operación", 
             on_click=calcular
         )
-
     page.add(
         ft.Text("Arbitraje Pro", size=32, weight="bold"),
         ft.Text("Calculadora Dinámica (Modo Ligero)", size=14, color=ft.Colors.GREY_400),
