@@ -5,50 +5,31 @@ def main(page: ft.Page):
     page.window_width = 400
     page.window_height = 850
     page.scroll = "adaptive"
-    page.theme_mode = "dark" 
+    page.theme_mode = ft.ThemeMode.DARK 
 
     # --- CAMPOS DE ENTRADA PRINCIPALES ---
     capital_input = ft.TextField(label="Capital a invertir (USD)", keyboard_type="number")
     pv_input = ft.TextField(label="Tasa de Venta (Pv)", keyboard_type="number")
     pc_input = ft.TextField(label="Tasa de Compra (Pc)", keyboard_type="number")
 
-    # --- CAMPOS DE COMISIONES ---
+    # --- CAMPOS DE COMISIONES (Con valores fijos por defecto) ---
     aplica_compra_check = ft.Checkbox(label="Cobrar comisión de compra (0.5%)", value=True)
     com_salida_input = ft.TextField(label="Comisión salida banco (%)", value="2.5", keyboard_type="number")
     com_plataforma_input = ft.TextField(label="Recarga plataforma (%)", value="3.6", keyboard_type="number")
-
-    # --- CARGAR DATOS GUARDADOS EN LA MEMORIA NATIVA DEL CELULAR ---
-    if page.client_storage.contains_key("tasa_venta"):
-        pv_input.value = page.client_storage.get("tasa_venta")
-    if page.client_storage.contains_key("tasa_compra"):
-        pc_input.value = page.client_storage.get("tasa_compra")
-    if page.client_storage.contains_key("com_salida"):
-        com_salida_input.value = page.client_storage.get("com_salida")
-    if page.client_storage.contains_key("com_plataforma"):
-        com_plataforma_input.value = page.client_storage.get("com_plataforma")
-    if page.client_storage.contains_key("aplica_compra"):
-        aplica_compra_check.value = page.client_storage.get("aplica_compra")
 
     resultado_texto = ft.Text(size=16, selectable=True)
 
     # --- LÓGICA DE CÁLCULO ---
     def calcular(e):
         try:
+            # Leer los valores directamente de los campos
             capital = float(capital_input.value)
             pv = float(pv_input.value)
             pc = float(pc_input.value)
-            
             val_salida = float(com_salida_input.value)
             val_plataforma = float(com_plataforma_input.value)
 
-            # Guardar automáticamente la configuración en la memoria del celular
-            page.client_storage.set("tasa_venta", pv_input.value)
-            page.client_storage.set("tasa_compra", pc_input.value)
-            page.client_storage.set("com_salida", com_salida_input.value)
-            page.client_storage.set("com_plataforma", com_plataforma_input.value)
-            page.client_storage.set("aplica_compra", aplica_compra_check.value)
-
-            # Lógica matemática
+            # Lógica matemática adaptada
             factor_compra = 1.005 if aplica_compra_check.value else 1.0
             factor_salida = 1 + (val_salida / 100) 
             factor_plataforma = 1 - (val_plataforma / 100) 
@@ -63,6 +44,7 @@ def main(page: ft.Page):
             ganancia = recibes - capital
             rendimiento = ((recibes / capital) - 1) * 100
 
+            # Formatear el resultado
             resultado_texto.value = (
                 f"📊 Desglose de Operación Susan\n\n"
                 f"1. Fase de Compra (Efectivo/Banco):\n"
@@ -92,17 +74,17 @@ def main(page: ft.Page):
 
     page.add(
         ft.Text("Arbitraje Pro", size=32, weight="bold"),
-        ft.Text("Calculadora Dinámica", size=14, color="grey"),
-        ft.Divider(height=10, color="transparent"),
+        ft.Text("Calculadora Dinámica (Modo Ligero)", size=14, color=ft.Colors.GREY_400),
+        ft.Divider(height=10, color=ft.Colors.TRANSPARENT),
         capital_input,
         pv_input,
         pc_input,
-        ft.Divider(height=5, color="grey"),
+        ft.Divider(height=5, color=ft.Colors.GREY_800),
         ft.Text("Configuración de Comisiones:", weight="bold"),
         aplica_compra_check,
         com_salida_input,
         com_plataforma_input,
-        ft.Divider(height=10, color="transparent"),
+        ft.Divider(height=10, color=ft.Colors.TRANSPARENT),
         boton_calcular,
         ft.Divider(height=20),
         resultado_texto
