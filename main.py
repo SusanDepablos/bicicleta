@@ -7,6 +7,8 @@ def main(page: ft.Page):
     page.scroll = "adaptive"
     page.theme_mode = ft.ThemeMode.DARK 
 
+    page.padding = 20 
+
     # --- CAMPOS DE ENTRADA PRINCIPALES ---
     capital_input = ft.TextField(label="Capital a invertir (USD)", keyboard_type="number")
     pv_input = ft.TextField(label="Tasa de Venta (Pv)", keyboard_type="number")
@@ -68,9 +70,9 @@ def main(page: ft.Page):
 
     # --- INTERFAZ VISUAL ---
     boton_calcular = ft.ElevatedButton(
-        "Calcular Operación", 
-        on_click=calcular
-    )
+            "Calcular Operación", 
+            on_click=calcular
+        )
 
     page.add(
         ft.Text("Arbitraje Pro", size=32, weight="bold"),
