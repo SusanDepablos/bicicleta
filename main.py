@@ -1,27 +1,4 @@
 import flet as ft
-import json
-import os
-
-ARCHIVO_DATOS = "config_tasas.json"
-
-def cargar_datos():
-    if os.path.exists(ARCHIVO_DATOS):
-        try:
-            with open(ARCHIVO_DATOS, "r") as f:
-                return json.load(f)
-        except:
-            return {}
-    return {}
-
-def guardar_datos(pv, pc, com_salida, com_plat, aplica_compra):
-    with open(ARCHIVO_DATOS, "w") as f:
-        json.dump({
-            "tasa_venta": pv, 
-            "tasa_compra": pc,
-            "comision_salida": com_salida,
-            "comision_plataforma": com_plat,
-            "aplica_compra": aplica_compra
-        }, f)
 
 def main(page: ft.Page):
     page.title = "Calculadora Arbitraje"
@@ -35,23 +12,22 @@ def main(page: ft.Page):
     pv_input = ft.TextField(label="Tasa de Venta (Pv)", keyboard_type="number")
     pc_input = ft.TextField(label="Tasa de Compra (Pc)", keyboard_type="number")
 
-    # --- CAMPOS DE COMISIONES (NUEVOS) ---
+    # --- CAMPOS DE COMISIONES ---
     aplica_compra_check = ft.Checkbox(label="Cobrar comisión de compra (0.5%)", value=True)
     com_salida_input = ft.TextField(label="Comisión salida banco (%)", value="2.5", keyboard_type="number")
     com_plataforma_input = ft.TextField(label="Recarga plataforma (%)", value="3.6", keyboard_type="number")
 
-    # --- CARGAR DATOS GUARDADOS ---
-    datos_guardados = cargar_datos()
-    if "tasa_venta" in datos_guardados:
-        pv_input.value = datos_guardados["tasa_venta"]
-    if "tasa_compra" in datos_guardados:
-        pc_input.value = datos_guardados["tasa_compra"]
-    if "comision_salida" in datos_guardados:
-        com_salida_input.value = datos_guardados["comision_salida"]
-    if "comision_plataforma" in datos_guardados:
-        com_plataforma_input.value = datos_guardados["comision_plataforma"]
-    if "aplica_compra" in datos_guardados:
-        aplica_compra_check.value = datos_guardados["aplica_compra"]
+    # --- CARGAR DATOS GUARDADOS EN LA MEMORIA NATIVA DEL CELULAR ---
+    if page.client_storage.contains_key("tasa_venta"):
+        pv_input.value = page.client_storage.get("tasa_venta")
+    if page.client_storage.contains_key("tasa_compra"):
+        pc_input.value = page.client_storage.get("tasa_compra")
+    if page.client_storage.contains_key("com_salida"):
+        com_salida_input.value = page.client_storage.get("com_salida")
+    if page.client_storage.contains_key("com_plataforma"):
+        com_plataforma_input.value = page.client_storage.get("com_plataforma")
+    if page.client_storage.contains_key("aplica_compra"):
+        aplica_compra_check.value = page.client_storage.get("aplica_compra")
 
     resultado_texto = ft.Text(size=16, selectable=True)
 
@@ -62,23 +38,20 @@ def main(page: ft.Page):
             pv = float(pv_input.value)
             pc = float(pc_input.value)
             
-            # Leer las comisiones dinámicas
             val_salida = float(com_salida_input.value)
             val_plataforma = float(com_plataforma_input.value)
 
-            # Guardar automáticamente la configuración para la próxima vez
-            guardar_datos(
-                pv_input.value, 
-                pc_input.value, 
-                com_salida_input.value, 
-                com_plataforma_input.value, 
-                aplica_compra_check.value
-            )
+            # Guardar automáticamente la configuración en la memoria del celular
+            page.client_storage.set("tasa_venta", pv_input.value)
+            page.client_storage.set("tasa_compra", pc_input.value)
+            page.client_storage.set("com_salida", com_salida_input.value)
+            page.client_storage.set("com_plataforma", com_plataforma_input.value)
+            page.client_storage.set("aplica_compra", aplica_compra_check.value)
 
-            # Lógica matemática adaptada
+            # Lógica matemática
             factor_compra = 1.005 if aplica_compra_check.value else 1.0
-            factor_salida = 1 + (val_salida / 100) # Ej: 1 + 0.025 = 1.025
-            factor_plataforma = 1 - (val_plataforma / 100) # Ej: 1 - 0.036 = 0.964
+            factor_salida = 1 + (val_salida / 100) 
+            factor_plataforma = 1 - (val_plataforma / 100) 
 
             bs_totales = capital * pv
             bs_netos = bs_totales / factor_compra
@@ -124,7 +97,7 @@ def main(page: ft.Page):
         capital_input,
         pv_input,
         pc_input,
-        ft.Divider(height=5, color="grey"), # Un divisor visual
+        ft.Divider(height=5, color="grey"),
         ft.Text("Configuración de Comisiones:", weight="bold"),
         aplica_compra_check,
         com_salida_input,
